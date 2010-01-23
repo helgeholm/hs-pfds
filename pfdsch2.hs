@@ -23,19 +23,18 @@ add t x = case add_ t x of
   Just u  -> u   -- tree with a shiny new x innit
 
 -- Solution to excercise 2.3.
--- Uses Maybe monad instead of exception, but the principle is the same.
-add_ :: (Ord a) => UnbalancedSet a -> a -> Maybe (UnbalancedSet a)
-add_ E x = Just (T E x E)
+-- Monads are more general than the requested exceptions.  LOL!
+add_ :: (Ord a, Monad m) => UnbalancedSet a -> a -> m (UnbalancedSet a)
+add_ E x = return $ T E x E
 add_ t x = case t of
-  T l y r -> if x < y
-             then case (add_ l x) of
-               Nothing -> Nothing
-               Just t2 -> Just $ T t2 y r
-             else if x > y
-                  then case (add_ r x) of
-                    Nothing -> Nothing
-                    Just t2 -> Just $ T l y t2
-                  else Nothing
+  T l y r -> do
+               l2 <- add_ l x
+               r2 <- add_ r x
+               if x < y
+                   then return $ T l2 y r
+                   else if x > y
+                        then return $ T l y r2
+                        else fail "x in set -> no-op"
 
 member :: (Ord a) => UnbalancedSet a -> a -> Bool
 member = member_ Nothing
