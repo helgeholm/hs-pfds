@@ -47,6 +47,8 @@ member = member_ Nothing
 -- node c meaning "the closest matching node we've passed so far".
 -- When going down left, the current node y CANNOT be x, so pass c unchanged.
 -- When going down right, the current node y MAY be x, so pass y as new c.
+-- If the new c is indeed x, going to the right subtree means we will always
+-- go left from now on, not updating c.
 -- When we reach the bottom, return whether c matches x. (1 comparison)
 member_ :: (Ord a) => Maybe a -> UnbalancedSet a -> a -> Bool
 member_ c t x = case t of
