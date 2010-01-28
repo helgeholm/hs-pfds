@@ -26,15 +26,14 @@ add t x = case add_ t x of
 -- Monads are more general than the requested exceptions.  LOL!
 add_ :: (Ord a, Monad m) => UnbalancedSet a -> a -> m (UnbalancedSet a)
 add_ E x = return $ T E x E
-add_ t x = case t of
-  T l y r -> do
-               l2 <- add_ l x
-               r2 <- add_ r x
-               if x < y
-                   then return $ T l2 y r
-                   else if x > y
-                        then return $ T l y r2
-                        else fail "x in set -> no-op"
+add_ (T l y r) x = do
+  l2 <- add_ l x
+  r2 <- add_ r x
+  if x < y
+      then return $ T l2 y r
+      else if x > y
+          then return $ T l y r2
+          else fail "x in set -> no-op"
 
 member :: (Ord a) => UnbalancedSet a -> a -> Bool
 member = member_ Nothing
